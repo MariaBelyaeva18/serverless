@@ -1,16 +1,35 @@
 const express = require('express');
 
-// Создаем экземпляр приложения Express
 const app = express();
-const PORT = process.env.PORT || 3000; // Render автоматически назначает порт
+const PORT = process.env.PORT || 3000;
 
-// Базовый маршрут - возвращаем текстовый ответ
+// Middleware для парсинга JSON в теле запроса
+app.use(express.json());
+
+// Базовый маршрут
 app.get('/', (req, res) => {
   res.set('Content-Type', 'text/plain');
   res.status(200).send('Hello, Serverless! 🚀\n');
 });
 
-// Запускаем сервер
+// Новый эндпоинт для обработки POST-запросов с JSON
+app.post('/echo', (req, res) => {
+  try {
+    const data = req.body; // Получаем данные из тела запроса
+
+    // Формируем ответ с полученными данными
+    const response = {
+      status: 'received',
+      you_sent: data,
+      length: data ? JSON.stringify(data).length : 0
+    };
+
+    res.json(response);
+  } catch (error) {
+    res.status(400).json({ error: 'Invalid JSON' });
+  }
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
 });
